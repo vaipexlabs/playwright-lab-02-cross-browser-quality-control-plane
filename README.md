@@ -18,6 +18,7 @@ communities.
 [Delivery Flow](#delivery-flow) ·
 [Architecture](#architecture) ·
 [Set Up the Toolchain](#set-up-the-toolchain) ·
+[Explore the Reference Application](#explore-the-reference-application) ·
 [Target Experience](#target-experience) ·
 [Delivery Roadmap](#delivery-roadmap) ·
 [Repository Structure](#repository-structure)
@@ -109,6 +110,33 @@ Install a smaller selection when only one engine is needed:
 On a Linux host that also needs browser operating-system packages, run with
 `PLAYWRIGHT_WITH_DEPS=1` and suitable system privileges.
 
+## Explore the Reference Application
+
+The repository includes **Vaipex Explorer**, a deterministic responsive
+planning application designed specifically for compatibility automation. Start
+it with:
+
+```bash
+./scripts/start-app.sh
+```
+
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and stop the application
+with `Ctrl+C`.
+
+The target provides:
+
+- A desktop navigation bar and accessible mobile navigation menu.
+- A responsive experience catalog with deterministic search behavior.
+- Locale-aware currency formatting through the browser runtime.
+- A client-side itinerary that reflows across desktop and mobile viewports.
+- An accessible booking dialog and deterministic confirmation contract.
+- Health, catalog, booking, and test-control APIs.
+- Stable user-facing labels and explicit test attributes where necessary.
+
+The application deliberately owns its data and behavior. Cross-browser results
+therefore reflect engine or profile differences rather than external websites,
+rate limits, or shared test state.
+
 ## Compatibility Dimensions
 
 | Dimension | Planned profiles |
@@ -127,7 +155,7 @@ risk or provide a deliberate release signal.
 
 - [x] Establish the repository, quality contract, licensing, and project shape.
 - [x] Add the locked Python and Playwright toolchain.
-- [ ] Deliver a deterministic responsive reference application.
+- [x] Deliver a deterministic responsive reference application.
 - [ ] Implement reusable journeys across Chromium, Firefox, and WebKit.
 - [ ] Add desktop, mobile, locale, and capability profiles.
 - [ ] Introduce risk-based suites, sharding, and merged evidence.
