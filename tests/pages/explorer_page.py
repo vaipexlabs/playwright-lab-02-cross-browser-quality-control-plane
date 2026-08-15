@@ -38,6 +38,11 @@ class ExplorerPage:
         card.get_by_role("button", name="Add to plan").click()
         expect(card.get_by_role("button", name="Added")).to_be_disabled()
 
+    def displayed_price(self, name: str) -> str:
+        card = self.cards.filter(has_text=name)
+        expect(card).to_have_count(1)
+        return card.locator("[data-price]").inner_text()
+
     def expect_plan(self, names: list[str], total: str) -> None:
         for name in names:
             expect(self.plan).to_contain_text(name)

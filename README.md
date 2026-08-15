@@ -20,6 +20,7 @@ communities.
 [Set Up the Toolchain](#set-up-the-toolchain) ·
 [Explore the Reference Application](#explore-the-reference-application) ·
 [Run the Three-Engine Journeys](#run-the-three-engine-journeys) ·
+[Run the Compatibility Profiles](#run-the-compatibility-profiles) ·
 [Target Experience](#target-experience) ·
 [Delivery Roadmap](#delivery-roadmap) ·
 [Repository Structure](#repository-structure)
@@ -172,6 +173,32 @@ Set `VAIPEX_EXPECT_TIMEOUT_MS`, `VAIPEX_TRAVELER_NAME`, and
 `VAIPEX_TRAVELER_EMAIL` to adjust the validated runtime configuration without
 changing test code.
 
+## Run the Compatibility Profiles
+
+Execute the representative desktop, mobile, locale, and capability profiles:
+
+```bash
+./scripts/test-profiles.sh
+```
+
+| Profile | Risk represented |
+| --- | --- |
+| `desktop-standard` | Primary 1440×900 desktop release signal |
+| `desktop-compact` | Constrained 1024×768 layout and British English |
+| `mobile-touch` | 390×844 viewport, touch input, and 3× pixel density |
+| `french-locale` | French formatting and European timezone behavior |
+| `reduced-motion` | Operating-system preference for reduced motion |
+
+Each profile first proves that the browser context matches its versioned
+contract and then runs a real catalog-to-itinerary outcome. Prices are asserted
+using the application text produced by that browser's locale rather than a
+hard-coded language-specific value.
+
+The core customer journeys still run across all three engines. The additional
+profiles run in Chromium as representative capability checks. This risk-based
+shape avoids 15 mostly redundant engine/profile combinations while retaining a
+clear signal for each supported dimension.
+
 ## Compatibility Dimensions
 
 | Dimension | Planned profiles |
@@ -192,7 +219,7 @@ risk or provide a deliberate release signal.
 - [x] Add the locked Python and Playwright toolchain.
 - [x] Deliver a deterministic responsive reference application.
 - [x] Implement reusable journeys across Chromium, Firefox, and WebKit.
-- [ ] Add desktop, mobile, locale, and capability profiles.
+- [x] Add desktop, mobile, locale, and capability profiles.
 - [ ] Introduce risk-based suites, sharding, and merged evidence.
 - [ ] Enforce the cross-browser matrix through GitHub Actions.
 - [ ] Publish the two-minute demo and operating guidance.

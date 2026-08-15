@@ -13,7 +13,7 @@ mkdir -p "${REPORT_DIRECTORY}" "${ARTIFACT_DIRECTORY}"
 echo "Running shared journeys across Chromium, Firefox, and WebKit..."
 cd "${REPOSITORY_ROOT}"
 "${REPOSITORY_ROOT}/.venv/bin/pytest" \
-  tests/e2e \
+  tests/e2e/test_cross_browser_journeys.py \
   -m compatibility \
   --browser chromium \
   --browser firefox \
