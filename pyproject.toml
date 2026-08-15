@@ -1,19 +1,42 @@
 [build-system]
-requires = ["setuptools>=75"]
+requires = ["setuptools==82.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "vaipex-cross-browser-quality-control-plane"
 version = "0.1.0"
 description = "A governed cross-browser and device compatibility test matrix."
+readme = "README.md"
 requires-python = ">=3.12,<3.13"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [{ name = "Vaipex Labs", email = "vaipex.labs@gmail.com" }]
-dependencies = []
+dependencies = [
+  "fastapi==0.141.1",
+  "itsdangerous==2.2.0",
+  "jinja2==3.1.6",
+  "python-multipart==0.0.32",
+  "uvicorn==0.52.3",
+]
+
+[project.optional-dependencies]
+test = [
+  "httpx2==2.10.0",
+  "playwright==1.62.0",
+  "pytest==9.1.1",
+  "pytest-html==4.2.0",
+  "pytest-playwright==0.9.0",
+  "pytest-xdist==3.8.0",
+  "ruff==0.16.3",
+  "setuptools==82.0.0",
+]
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]
+markers = [
+  "e2e: browser-based end-to-end tests",
+  "compatibility: cross-browser and device-profile tests",
+]
 
 [tool.ruff]
 target-version = "py312"
