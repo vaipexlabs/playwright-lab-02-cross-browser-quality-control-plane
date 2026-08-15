@@ -47,3 +47,6 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+vaipex_cross_browser = ["templates/*.html", "static/*.css", "static/*.js"]

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#07164f">
+    <title>Vaipex Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+    <script defer src="{{ url_for('static', path='/app.js') }}"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#experiences">Skip to experiences</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Vaipex Explorer home">
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>Vaipex <strong>Explorer</strong></span>
+      </a>
+      <button
+        class="menu-button"
+        type="button"
+        aria-expanded="false"
+        aria-controls="primary-navigation"
+        data-testid="mobile-menu-toggle"
+      >
+        <span aria-hidden="true">☰</span>
+        <span>Menu</span>
+      </button>
+      <nav id="primary-navigation" class="primary-navigation" aria-label="Primary">
+        <a href="#experiences">Experiences</a>
+        <a href="#principles">Principles</a>
+        <a href="#plan">My plan <span class="nav-count" data-plan-count>0</span></a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">Curated engineering experiences</p>
+          <h1 id="hero-title">Plan work that broadens your perspective.</h1>
+          <p class="hero-copy">
+            Discover focused, accessible experiences built for teams who care
+            about thoughtful technology and sustainable delivery.
+          </p>
+          <a class="primary-action" href="#experiences">Explore the collection</a>
+        </div>
+        <div class="hero-signal" aria-label="Three cities, three disciplines, one itinerary">
+          <span>3</span>
+          <p>cities<br>one purposeful itinerary</p>
+        </div>
+      </section>
+
+      <section id="experiences" class="catalog-section" aria-labelledby="catalog-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Choose your focus</p>
+            <h2 id="catalog-title">Experiences</h2>
+          </div>
+          <label class="search-field">
+            <span>Search experiences</span>
+            <input
+              type="search"
+              placeholder="Try reliability"
+              autocomplete="off"
+              data-testid="experience-search"
+            >
+          </label>
+        </div>
+        <p class="result-status" aria-live="polite" data-result-status>3 experiences available</p>
+        <div class="experience-grid" data-experience-grid>
+          {% for experience in experiences %}
+          <article
+            class="experience-card"
+            data-testid="experience-card"
+            data-experience-id="{{ experience.id }}"
+            data-search="{{ experience.name }} {{ experience.location }} {{ experience.category }}"
+          >
+            <div class="card-visual card-visual--{{ experience.accent }}" aria-hidden="true">
+              <span>{{ "%02d" | format(loop.index) }}</span>
+              <span>{{ experience.category }}</span>
+            </div>
+            <div class="card-content">
+              <p class="card-meta">{{ experience.location }} · {{ experience.duration }}</p>
+              <h3>{{ experience.name }}</h3>
+              <p>{{ experience.description }}</p>
+              <div class="card-footer">
+                <span class="price" data-price="{{ experience.price }}">USD {{ experience.price }}</span>
+                <button
+                  type="button"
+                  class="secondary-action"
+                  data-add-experience="{{ experience.id }}"
+                  data-experience-name="{{ experience.name }}"
+                  data-experience-price="{{ experience.price }}"
+                >Add to plan</button>
+              </div>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section id="principles" class="principles" aria-labelledby="principles-title">
+        <p class="eyebrow">Designed for confidence</p>
+        <h2 id="principles-title">One experience across every supported device.</h2>
+        <div class="principle-grid">
+          <article><strong>Responsive</strong><span>Content reflows without losing intent.</span></article>
+          <article><strong>Accessible</strong><span>Keyboard, focus, and live regions are explicit.</span></article>
+          <article><strong>Deterministic</strong><span>Data and confirmations remain repeatable.</span></article>
+        </div>
+      </section>
+
+      <section id="plan" class="plan-section" aria-labelledby="plan-title">
+        <div>
+          <p class="eyebrow">Your itinerary</p>
+          <h2 id="plan-title">Build a purposeful plan.</h2>
+          <p>Select one or more experiences and confirm the plan with a test traveler.</p>
+        </div>
+        <div class="plan-card" data-testid="plan-summary">
+          <p class="empty-plan" data-empty-plan>No experiences selected yet.</p>
+          <ul class="plan-items" data-plan-items aria-label="Selected experiences"></ul>
+          <div class="plan-total"><span>Total</span><strong data-plan-total>USD 0</strong></div>
+          <button class="primary-action" type="button" data-review-plan disabled>Review and confirm</button>
+          <button class="text-action" type="button" data-clear-plan disabled>Clear plan</button>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="booking-dialog" data-booking-dialog aria-labelledby="booking-title">
+      <form data-booking-form>
+        <button class="dialog-close" type="button" aria-label="Close booking dialog" data-close-dialog>×</button>
+        <p class="eyebrow">Final step</p>
+        <h2 id="booking-title">Confirm your plan</h2>
+        <label>Traveler name<input name="traveler_name" autocomplete="name" required minlength="2"></label>
+        <label>Traveler email<input name="traveler_email" type="email" autocomplete="email" required></label>
+        <p class="form-error" role="alert" data-form-error hidden></p>
+        <button class="primary-action" type="submit">Confirm booking</button>
+      </form>
+      <section class="confirmation" data-confirmation hidden aria-live="polite">
+        <p class="confirmation-mark" aria-hidden="true">✓</p>
+        <h2>Plan confirmed</h2>
+        <p>Your booking reference is <strong data-booking-id></strong>.</p>
+        <button class="primary-action" type="button" data-close-confirmation>Done</button>
+      </section>
+    </dialog>
+
+    <footer><span>Vaipex Labs</span><span>Responsive reference application</span></footer>
+  </body>
+</html>
