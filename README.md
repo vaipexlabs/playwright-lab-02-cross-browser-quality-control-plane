@@ -17,6 +17,7 @@ communities.
 [Quality Contract](#quality-contract) ·
 [Delivery Flow](#delivery-flow) ·
 [Architecture](#architecture) ·
+[Set Up the Toolchain](#set-up-the-toolchain) ·
 [Target Experience](#target-experience) ·
 [Delivery Roadmap](#delivery-roadmap) ·
 [Repository Structure](#repository-structure)
@@ -78,6 +79,36 @@ It will validate the locked toolchain, execute representative Chromium,
 Firefox, WebKit, desktop, and mobile profiles, merge their evidence, and print
 the final compatibility decision.
 
+## Set Up the Toolchain
+
+Python 3.12 is required. Create or reconcile the local environment with:
+
+```bash
+./scripts/setup.sh
+./scripts/validate-toolchain.sh
+```
+
+The setup command installs the complete dependency graph from
+`requirements.lock` and records that lock inside `.venv`. Every supported
+entry point automatically reruns setup when the environment is missing or the
+lock has changed.
+
+Install all three Playwright engines before the first cross-browser run:
+
+```bash
+./scripts/install-browsers.sh
+```
+
+Install a smaller selection when only one engine is needed:
+
+```bash
+./scripts/install-browsers.sh chromium
+./scripts/install-browsers.sh firefox webkit
+```
+
+On a Linux host that also needs browser operating-system packages, run with
+`PLAYWRIGHT_WITH_DEPS=1` and suitable system privileges.
+
 ## Compatibility Dimensions
 
 | Dimension | Planned profiles |
@@ -95,7 +126,7 @@ risk or provide a deliberate release signal.
 ## Delivery Roadmap
 
 - [x] Establish the repository, quality contract, licensing, and project shape.
-- [ ] Add the locked Python and Playwright toolchain.
+- [x] Add the locked Python and Playwright toolchain.
 - [ ] Deliver a deterministic responsive reference application.
 - [ ] Implement reusable journeys across Chromium, Firefox, and WebKit.
 - [ ] Add desktop, mobile, locale, and capability profiles.
@@ -118,8 +149,8 @@ state.
 | Ruff | Python formatting and linting |
 | GitHub Actions | Continuous compatibility-gate enforcement |
 
-Dependencies will be declared in `pyproject.toml` and fully pinned before the
-first executable milestone.
+Direct dependencies are declared in `pyproject.toml`; the complete transitive
+environment is pinned in `requirements.lock`.
 
 ## Repository Structure
 
@@ -130,6 +161,7 @@ src/                 Python control plane and reference application
 tests/               Fast contracts and reusable browser journeys
 scripts/             Supported setup, execution, and demonstration commands
 pyproject.toml       Package metadata and tool configuration
+requirements.lock   Fully resolved runtime and test dependency versions
 ```
 
 ## Contributing
