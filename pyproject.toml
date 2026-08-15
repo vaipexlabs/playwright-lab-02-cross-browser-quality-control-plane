@@ -36,6 +36,8 @@ testpaths = ["tests"]
 markers = [
   "e2e: browser-based end-to-end tests",
   "compatibility: cross-browser and device-profile tests",
+  "smoke: fast representative release signal",
+  "regression: broader customer-journey coverage",
 ]
 
 [tool.ruff]
