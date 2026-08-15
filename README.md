@@ -19,6 +19,7 @@ communities.
 [Architecture](#architecture) ·
 [Set Up the Toolchain](#set-up-the-toolchain) ·
 [Explore the Reference Application](#explore-the-reference-application) ·
+[Run the Three-Engine Journeys](#run-the-three-engine-journeys) ·
 [Target Experience](#target-experience) ·
 [Delivery Roadmap](#delivery-roadmap) ·
 [Repository Structure](#repository-structure)
@@ -137,6 +138,40 @@ The application deliberately owns its data and behavior. Cross-browser results
 therefore reflect engine or profile differences rather than external websites,
 rate limits, or shared test state.
 
+## Run the Three-Engine Journeys
+
+Execute the same customer outcomes in Chromium, Firefox, and WebKit:
+
+```bash
+./scripts/test-cross-browser.sh
+```
+
+The command installs the pinned browser builds and executes two reusable
+journeys in every engine:
+
+1. Filter the catalog, add the Kyoto experience, and verify the itinerary.
+2. Build a multi-city plan and receive a deterministic booking confirmation.
+
+The six executions share page objects, configuration, and assertions. No test
+contains a browser-specific branch. Each engine receives a fresh browser
+context, and the local application starts and stops automatically.
+
+Every run produces:
+
+- `reports/cross-browser.html` for human review.
+- `reports/cross-browser.xml` for CI and quality-system integration.
+- Failure-only screenshots, traces, and videos under `artifacts/playwright/`.
+
+Point the same journeys at a compatible deployed environment:
+
+```bash
+VAIPEX_BASE_URL=https://explorer.example.test ./scripts/test-cross-browser.sh
+```
+
+Set `VAIPEX_EXPECT_TIMEOUT_MS`, `VAIPEX_TRAVELER_NAME`, and
+`VAIPEX_TRAVELER_EMAIL` to adjust the validated runtime configuration without
+changing test code.
+
 ## Compatibility Dimensions
 
 | Dimension | Planned profiles |
@@ -156,7 +191,7 @@ risk or provide a deliberate release signal.
 - [x] Establish the repository, quality contract, licensing, and project shape.
 - [x] Add the locked Python and Playwright toolchain.
 - [x] Deliver a deterministic responsive reference application.
-- [ ] Implement reusable journeys across Chromium, Firefox, and WebKit.
+- [x] Implement reusable journeys across Chromium, Firefox, and WebKit.
 - [ ] Add desktop, mobile, locale, and capability profiles.
 - [ ] Introduce risk-based suites, sharding, and merged evidence.
 - [ ] Enforce the cross-browser matrix through GitHub Actions.
