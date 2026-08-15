@@ -1,5 +1,5 @@
 const state = new Map();
-const currency = new Intl.NumberFormat(document.documentElement.lang || "en", {
+const currency = new Intl.NumberFormat(navigator.language || "en", {
   style: "currency",
   currency: "USD",
   maximumFractionDigits: 0,
