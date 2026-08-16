@@ -1,186 +1,172 @@
 # Vaipex Cross-Browser Quality Control Plane
 
-An open reference implementation for governing browser, device, and viewport
-compatibility through a consistent Playwright and Python test matrix. It helps
-teams turn compatibility expectations into repeatable quality signals that run
-the same way on a workstation and in continuous integration.
+An open reference implementation for governing browser, device, locale, and
+viewport compatibility through a consistent Playwright and Python quality
+matrix. It turns a declared support policy into repeatable release evidence
+that behaves the same way on a workstation and in continuous integration.
 
 Developed by **Vaipex Labs** for the developer and quality engineering
 communities.
 
-![Focus](https://img.shields.io/badge/Focus-Cross--Browser%20Quality-6D42E8)
+[![Cross-Browser Quality Matrix](https://github.com/vaipexlabs/playwright-lab-02-cross-browser-quality-control-plane/actions/workflows/cross-browser-quality.yaml/badge.svg)](https://github.com/vaipexlabs/playwright-lab-02-cross-browser-quality-control-plane/actions/workflows/cross-browser-quality.yaml)
 ![Playwright](https://img.shields.io/badge/Playwright-Python-2EAD33?logo=playwright&logoColor=white)
 ![Browsers](https://img.shields.io/badge/Browsers-Chromium%20%7C%20Firefox%20%7C%20WebKit-2877FF)
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue)
 
-[Project Intent](#project-intent) ·
-[Quality Contract](#quality-contract) ·
-[Delivery Flow](#delivery-flow) ·
-[Architecture](#architecture) ·
-[Set Up the Toolchain](#set-up-the-toolchain) ·
-[Explore the Reference Application](#explore-the-reference-application) ·
-[Run the Three-Engine Journeys](#run-the-three-engine-journeys) ·
-[Run the Compatibility Profiles](#run-the-compatibility-profiles) ·
-[Risk-Based Suites and Sharding](#risk-based-suites-and-sharding) ·
-[Target Experience](#target-experience) ·
-[Delivery Roadmap](#delivery-roadmap) ·
-[Repository Structure](#repository-structure)
+[Capabilities](#capabilities) ·
+[How It Works](#how-it-works) ·
+[Two-Minute Demo](#two-minute-demo) ·
+[Test It Manually](#test-it-manually) ·
+[Compatibility Policy](#compatibility-policy) ·
+[Control Architecture](#control-architecture) ·
+[Continuous Quality Gate](#continuous-quality-gate) ·
+[Customize](#customize-the-control-plane) ·
+[Operations](#operations)
 
-## Project Intent
+## Capabilities
 
-A journey that passes in one browser does not prove that customers receive a
-consistent experience. Browser engines, viewports, input models, locale, and
-network conditions can expose different failures. Running every combination
-indiscriminately, however, makes feedback slow and expensive.
+| Capability | Implementation |
+| --- | --- |
+| Browser-engine coverage | The same customer journeys run in Chromium, Firefox, and WebKit |
+| Responsive coverage | Versioned desktop and touch-oriented mobile viewport profiles |
+| Runtime compatibility | Locale, timezone, touch, pixel-density, and reduced-motion contracts |
+| Risk-based execution | Fast smoke checks and a broader regression signal |
+| Parallel scale-out | Stable round-robin sharding over fully parameterized test IDs |
+| Evidence | HTML, JUnit, logs, traces, screenshots, videos, and JSON decisions |
+| Release governance | One merged compatibility decision instead of unrelated matrix results |
+| Continuous enforcement | Pull-request, `main`, scheduled, and manually dispatched GitHub Actions runs |
+| Reference application | A deterministic responsive experience with no third-party test dependency |
+| Developer experience | Locked setup, supported scripts, a two-minute demo, and operating guidance |
 
-This project demonstrates a governed compatibility capability that:
-
-- Declares supported browser and device profiles as versioned configuration.
-- Runs the right coverage at pull-request, main-branch, and scheduled stages.
-- Reuses business journeys without duplicating browser-specific test code.
-- Separates genuine product defects from infrastructure and test instability.
-- Preserves browser-specific traces, screenshots, videos, and reports.
-- Produces one clear compatibility decision for delivery automation.
-- Makes coverage, duration, and failure patterns visible to platform teams.
-
-## Quality Contract
-
-The control plane will enforce five principles:
-
-1. **Explicit support:** every browser and device profile has an owner and
-   purpose.
-2. **Risk-based coverage:** fast representative checks run before broader
-   compatibility suites.
-3. **Journey reuse:** tests describe customer outcomes, not browser branches.
-4. **Isolated execution:** matrix cells own their context, data, and evidence.
-5. **Stable decision:** delivery systems consume one aggregated quality gate.
-
-## Delivery Flow
-
-A change moves from an explicit compatibility policy to isolated execution,
-comparable evidence, and a single governed release decision.
+## How It Works
 
 ![Vaipex cross-browser quality flow](docs/images/vaipex-cross-browser-flow.svg)
 
-## Architecture
+The operating principle is:
 
-Developers and GitHub Actions invoke the same Python control layer. A matrix
-orchestrator expands the declared policy into browser and device profiles,
-executes reusable journeys against the reference application, and aggregates
-the resulting evidence into one quality decision.
+> Declare the compatibility promise, reuse customer journeys across isolated
+> profiles, preserve browser-specific evidence, and publish one release signal.
 
-![Vaipex cross-browser quality architecture](docs/images/vaipex-cross-browser-architecture.svg)
+A developer runs the same supported scripts used by GitHub Actions. The
+control plane expands shared journeys across browser engines and compatibility
+profiles, isolates every execution, and retains failure evidence. Shard
+results are then merged into a decision that delivery automation can consume.
 
-## Target Experience
+## Two-Minute Demo
 
-The finished implementation will provide one short demonstration:
+### Prerequisites
+
+- Python 3.12
+- A macOS or Linux workstation
+- Internet access for the one-time dependency and browser installation
+
+Prepare the pinned environment once:
+
+```bash
+./scripts/setup.sh
+./scripts/install-browsers.sh
+```
+
+### Run the demonstration
 
 ```bash
 ./scripts/two-minute-demo.sh
 ```
 
-It will validate the locked toolchain, execute representative Chromium,
-Firefox, WebKit, desktop, and mobile profiles, merge their evidence, and print
-the final compatibility decision.
+The command proves four outcomes:
 
-## Set Up the Toolchain
+1. The locked dependencies, formatting rules, and unit contracts are valid.
+2. Six core journeys run across three engines in two deterministic shards.
+3. Ten checks exercise desktop, mobile, locale, touch, and motion profiles.
+4. All sixteen executions become one machine-readable compatibility decision.
 
-Python 3.12 is required. Create or reconcile the local environment with:
+Expected final output:
 
-```bash
-./scripts/setup.sh
-./scripts/validate-toolchain.sh
+```text
+Decision:              PASSED
+Browser engines:       3
+Compatibility profiles: 5
+Total executions:      16
+Failures / errors:     0 / 0
+
+PASS: browser engines and compatibility profiles satisfied the contract.
 ```
 
-The setup command installs the complete dependency graph from
-`requirements.lock` and records that lock inside `.venv`. Every supported
-entry point automatically reruns setup when the environment is missing or the
-lock has changed.
+Open `reports/merged/index.html` for the consolidated browser report. The
+overall demonstration decision is written to `reports/demo/summary.json`.
 
-Install all three Playwright engines before the first cross-browser run:
+## Test It Manually
 
-```bash
-./scripts/install-browsers.sh
-```
-
-Install a smaller selection when only one engine is needed:
-
-```bash
-./scripts/install-browsers.sh chromium
-./scripts/install-browsers.sh firefox webkit
-```
-
-On a Linux host that also needs browser operating-system packages, run with
-`PLAYWRIGHT_WITH_DEPS=1` and suitable system privileges.
-
-## Explore the Reference Application
+### 1. Explore the reference application
 
 The repository includes **Vaipex Explorer**, a deterministic responsive
-planning application designed specifically for compatibility automation. Start
-it with:
+planning application built specifically for compatibility automation:
 
 ```bash
 ./scripts/start-app.sh
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and stop the application
-with `Ctrl+C`.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and stop it with `Ctrl+C`.
+It provides responsive navigation, deterministic catalog search, locale-aware
+prices, a client-side itinerary, an accessible booking dialog, stable APIs,
+and explicit test controls.
 
-The target provides:
-
-- A desktop navigation bar and accessible mobile navigation menu.
-- A responsive experience catalog with deterministic search behavior.
-- Locale-aware currency formatting through the browser runtime.
-- A client-side itinerary that reflows across desktop and mobile viewports.
-- An accessible booking dialog and deterministic confirmation contract.
-- Health, catalog, booking, and test-control APIs.
-- Stable user-facing labels and explicit test attributes where necessary.
-
-The application deliberately owns its data and behavior. Cross-browser results
-therefore reflect engine or profile differences rather than external websites,
-rate limits, or shared test state.
-
-## Run the Three-Engine Journeys
-
-Execute the same customer outcomes in Chromium, Firefox, and WebKit:
+### 2. Run the three-engine journeys
 
 ```bash
 ./scripts/test-cross-browser.sh
 ```
 
-The command installs the pinned browser builds and executes two reusable
-journeys in every engine:
+Two browser-agnostic customer outcomes run in Chromium, Firefox, and WebKit:
 
-1. Filter the catalog, add the Kyoto experience, and verify the itinerary.
-2. Build a multi-city plan and receive a deterministic booking confirmation.
+- filter the catalog, add an experience, and verify the itinerary;
+- build a multi-city plan and receive a deterministic booking confirmation.
 
-The six executions share page objects, configuration, and assertions. No test
-contains a browser-specific branch. Each engine receives a fresh browser
-context, and the local application starts and stops automatically.
+The six executions share page objects, configuration, and assertions. Each
+engine receives a fresh context, while the application starts and stops
+automatically.
 
-Every run produces:
+### 3. Run the compatibility profiles
 
-- `reports/cross-browser.html` for human review.
-- `reports/cross-browser.xml` for CI and quality-system integration.
-- Failure-only screenshots, traces, and videos under `artifacts/playwright/`.
+```bash
+./scripts/test-profiles.sh
+```
 
-Point the same journeys at a compatible deployed environment:
+The five profiles prove their declared browser-context contract before running
+a real catalog-to-itinerary outcome.
+
+### 4. Choose the risk signal
+
+Run the fastest representative signal during development:
+
+```bash
+./scripts/test-risk-suite.sh smoke
+```
+
+Run both core journeys in every engine before release:
+
+```bash
+./scripts/test-risk-suite.sh regression
+```
+
+### 5. Prove parallel execution and evidence merging
+
+```bash
+./scripts/test-sharded.sh
+```
+
+The sharding algorithm sorts fully parameterized Pytest node IDs and assigns
+them round-robin. Collection order cannot change ownership, every execution
+belongs to exactly one shard, and invalid shard coordinates fail before a
+browser starts.
+
+Point the core journeys at a compatible deployed target when required:
 
 ```bash
 VAIPEX_BASE_URL=https://explorer.example.test ./scripts/test-cross-browser.sh
 ```
 
-Set `VAIPEX_EXPECT_TIMEOUT_MS`, `VAIPEX_TRAVELER_NAME`, and
-`VAIPEX_TRAVELER_EMAIL` to adjust the validated runtime configuration without
-changing test code.
-
-## Run the Compatibility Profiles
-
-Execute the representative desktop, mobile, locale, and capability profiles:
-
-```bash
-./scripts/test-profiles.sh
-```
+## Compatibility Policy
 
 | Profile | Risk represented |
 | --- | --- |
@@ -190,105 +176,107 @@ Execute the representative desktop, mobile, locale, and capability profiles:
 | `french-locale` | French formatting and European timezone behavior |
 | `reduced-motion` | Operating-system preference for reduced motion |
 
-Each profile first proves that the browser context matches its versioned
-contract and then runs a real catalog-to-itinerary outcome. Prices are asserted
-using the application text produced by that browser's locale rather than a
-hard-coded language-specific value.
+Core customer journeys run across all three engines. The additional profiles
+run in Chromium as representative capability checks. This risk-based design
+avoids fifteen mostly redundant engine/profile combinations while retaining a
+deliberate signal for every supported dimension.
 
-The core customer journeys still run across all three engines. The additional
-profiles run in Chromium as representative capability checks. This risk-based
-shape avoids 15 mostly redundant engine/profile combinations while retaining a
-clear signal for each supported dimension.
+The policy follows five rules:
 
-## Risk-Based Suites and Sharding
+1. Every supported profile represents an explicit customer or platform risk.
+2. Tests describe customer outcomes and contain no browser-specific branches.
+3. Matrix cells own their context, data, and evidence.
+4. Fast signals precede broader compatibility coverage.
+5. Delivery consumes the merged decision, not an individual test result.
 
-Use a fast representative signal while developing or reviewing a change:
+## Control Architecture
 
-```bash
-./scripts/test-risk-suite.sh smoke
-```
+![Vaipex cross-browser quality architecture](docs/images/vaipex-cross-browser-architecture.svg)
 
-Run both the smoke and broader booking journeys across every engine:
-
-```bash
-./scripts/test-risk-suite.sh regression
-```
-
-Split the six core browser executions into two deterministic parallel shards
-and merge their evidence:
-
-```bash
-./scripts/test-sharded.sh
-```
-
-The sharding algorithm sorts the fully parameterized Pytest node IDs and
-assigns them round-robin. Every execution belongs to exactly one shard, the
-distribution stays stable when collection order changes, and an invalid shard
-contract is rejected before browser execution.
-
-Each shard publishes its own HTML, JUnit, log, and failure evidence. After all
-shards finish, the control plane produces:
-
-- `reports/merged/index.html` — consolidated human-readable decision.
-- `reports/merged/junit.xml` — combined machine-readable test suites.
-- `reports/merged/summary.json` — compact status and count contract.
-
-Set `VAIPEX_SHARD_TOTAL` to change the local shard count. CI can invoke
-`./scripts/run-shard.sh INDEX TOTAL` directly so each runner owns one shard.
+| Component | Responsibility |
+| --- | --- |
+| Vaipex Explorer | Provide deterministic responsive behavior and test data |
+| Pytest | Compose fixtures, markers, parametrization, and assertions |
+| Playwright | Drive Chromium, Firefox, WebKit, and emulated browser contexts |
+| Page objects | Keep shared customer journeys independent of browser details |
+| Shard selector | Assign stable, non-overlapping test ownership |
+| Evidence merger | Produce consolidated HTML, JUnit, and JSON results |
+| GitHub Actions | Orchestrate continuous execution and artifact retention |
 
 ## Continuous Quality Gate
 
-The GitHub Actions workflow uses the same repository scripts that developers
-run locally. Pull requests, changes to `main`, weekday schedules, and manual
-runs trigger four governed stages:
+The workflow under `.github/workflows/cross-browser-quality.yaml` triggers for
+pull requests, `main`, weekday schedules, and manual dispatches. It:
 
-1. Validate the pinned Python toolchain, formatting rules, and unit contract.
-2. Run two deterministic browser shards concurrently with fail-fast disabled.
-3. Exercise desktop, mobile, locale, and reduced-motion profiles in Chromium.
-4. Merge the shard reports into one HTML, JUnit, and JSON quality decision.
+1. validates the locked toolchain and fast quality contract;
+2. runs two browser shards concurrently with fail-fast disabled;
+3. runs the five compatibility profiles on an independent runner;
+4. downloads shard artifacts and publishes one merged quality decision.
 
-Every external action is pinned to an immutable commit. The workflow has
-read-only repository access, prevents duplicate pull-request runs, retains
-failure evidence for seven days, and retains the merged decision for fourteen
-days. The required branch-protection check should be **Merged quality
-decision**, because it represents the consolidated release signal.
+External actions are pinned to immutable commits. The workflow uses read-only
+repository permissions, concurrency control, explicit timeouts, pip caching,
+and failure-safe artifact upload. Shard and profile evidence is retained for
+seven days; the merged decision is retained for fourteen days.
 
-## Compatibility Dimensions
+Configure **Merged quality decision** as the required branch-protection check.
 
-| Dimension | Planned profiles |
+## Evidence
+
+| Evidence | Location |
 | --- | --- |
-| Browser engine | Chromium, Firefox, WebKit |
-| Desktop viewport | Standard laptop and wide desktop |
-| Mobile device | Touch-oriented phone profiles |
-| Environment | Local reference application or compatible deployed target |
-| Execution stage | Pull request, main branch, and scheduled regression |
-| Evidence | HTML, JUnit, trace, screenshot, and video |
+| Final demo decision | `reports/demo/summary.json` |
+| Consolidated human report | `reports/merged/index.html` |
+| Consolidated machine report | `reports/merged/junit.xml` |
+| Per-shard reports and logs | `reports/shards/` |
+| Per-profile reports | `reports/profiles/` |
+| Failure traces, screenshots, and videos | `artifacts/` |
 
-The matrix will remain intentionally small. Each profile must detect a distinct
-risk or provide a deliberate release signal.
+Generated evidence is intentionally excluded from Git. See the
+[operating guide](docs/operations.md) for triage, retention, environment, and
+cleanup procedures.
 
-## Delivery Roadmap
+## Customize the Control Plane
 
-- [x] Establish the repository, quality contract, licensing, and project shape.
-- [x] Add the locked Python and Playwright toolchain.
-- [x] Deliver a deterministic responsive reference application.
-- [x] Implement reusable journeys across Chromium, Firefox, and WebKit.
-- [x] Add desktop, mobile, locale, and capability profiles.
-- [x] Introduce risk-based suites, sharding, and merged evidence.
-- [x] Enforce the cross-browser matrix through GitHub Actions.
-- [ ] Publish the two-minute demo and operating guidance.
+Adopters can replace the reference application or individual tools while
+preserving the control contract:
 
-Each milestone is independently reviewable and preserves a usable project
-state.
+- add profiles only when they represent a distinct, owned compatibility risk;
+- change smoke and regression markers without duplicating customer journeys;
+- change the shard count while retaining deterministic, non-overlapping
+  assignment;
+- target a deployed application that implements the same accessible UI and
+  reset contract;
+- publish evidence to another quality platform while retaining human and
+  machine-readable decisions;
+- replace GitHub Actions with an orchestrator that invokes the same supported
+  repository scripts.
+
+Policy changes should update configuration, tests, documentation, and CI
+together. Do not hide a browser difference inside conditional test logic.
+
+## Operations
+
+The [operating guide](docs/operations.md) contains supported commands,
+evidence locations, failure triage, common problems, policy-change guidance,
+and cleanup instructions.
+
+Runtime settings can be changed without editing test code:
+
+| Variable | Purpose |
+| --- | --- |
+| `VAIPEX_BASE_URL` | Test a compatible deployed environment |
+| `VAIPEX_EXPECT_TIMEOUT_MS` | Adjust validated Playwright timeouts |
+| `VAIPEX_TRAVELER_NAME` | Override deterministic booking identity |
+| `VAIPEX_TRAVELER_EMAIL` | Override deterministic booking email |
+| `VAIPEX_SHARD_TOTAL` | Change the local parallel shard count |
 
 ## Toolchain
 
 | Tool | Role |
 | --- | --- |
-| Python | Automation and orchestration language |
-| Playwright for Python | Chromium, Firefox, WebKit, and device emulation |
+| Python 3.12 | Automation and orchestration language |
+| Playwright for Python | Browser engines and context emulation |
 | Pytest | Fixtures, markers, parametrization, and assertions |
-| pytest-xdist | Parallel matrix execution |
 | FastAPI | Deterministic responsive reference application |
 | Ruff | Python formatting and linting |
 | GitHub Actions | Continuous compatibility-gate enforcement |
@@ -296,21 +284,29 @@ state.
 Direct dependencies are declared in `pyproject.toml`; the complete transitive
 environment is pinned in `requirements.lock`.
 
+## Project Boundaries
+
+This repository demonstrates browser-compatibility governance and release
+evidence. It is not a cloud device farm, visual-regression platform,
+accessibility certification suite, performance-testing system, or replacement
+for production monitoring. Those capabilities can consume the same declared
+profiles and evidence boundaries without being hidden inside this project.
+
 ## Repository Structure
 
 ```text
-.github/             Continuous quality and dependency automation
-docs/images/         Vaipex delivery-flow and architecture illustrations
-src/                 Python control plane and reference application
+.github/workflows/  Continuous cross-browser quality gate
+docs/               Architecture images and operating guidance
+src/                Python control plane and reference application
 tests/               Fast contracts and reusable browser journeys
-scripts/             Supported setup, execution, and demonstration commands
+scripts/             Supported setup, execution, and demo commands
 pyproject.toml       Package metadata and tool configuration
-requirements.lock   Fully resolved runtime and test dependency versions
+requirements.lock   Fully resolved dependency versions
 ```
 
 ## Contributing
 
-Community contributions are welcome. Keep compatibility profiles intentional,
-journeys browser-agnostic, execution isolated, and evidence actionable.
+Community contributions are welcome. Keep profiles intentional, journeys
+browser-agnostic, execution isolated, and evidence actionable.
 
 Licensed under the [Apache License 2.0](LICENSE).
