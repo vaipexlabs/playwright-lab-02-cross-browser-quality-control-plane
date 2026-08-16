@@ -8,7 +8,9 @@ REPORT_DIRECTORY="${REPOSITORY_ROOT}/reports/shards"
 MERGED_DIRECTORY="${REPOSITORY_ROOT}/reports/merged"
 
 "${REPOSITORY_ROOT}/scripts/ensure-toolchain.sh" || exit 1
-"${REPOSITORY_ROOT}/scripts/install-browsers.sh" chromium firefox webkit || exit 1
+if [[ "${VAIPEX_SKIP_BROWSER_INSTALL:-0}" != "1" ]]; then
+  "${REPOSITORY_ROOT}/scripts/install-browsers.sh" chromium firefox webkit || exit 1
+fi
 mkdir -p "${REPORT_DIRECTORY}" "${MERGED_DIRECTORY}"
 rm -f \
   "${REPORT_DIRECTORY}"/shard-*.html \
