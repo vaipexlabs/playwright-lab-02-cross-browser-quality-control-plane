@@ -1,0 +1,178 @@
+name: Cross-Browser Quality Matrix
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "17 3 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cross-browser-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PYTHON_VERSION: "3.12"
+  SHARD_TOTAL: "2"
+
+jobs:
+  quality-contract:
+    name: Quality contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the immutable revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Configure Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Validate the locked toolchain and unit contract
+        run: ./scripts/validate-toolchain.sh
+
+  browser-matrix:
+    name: Browser shard ${{ matrix.shard }}/2
+    needs: quality-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - name: Check out the immutable revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Configure Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Install the locked toolchain
+        run: ./scripts/setup.sh
+      - name: Install browser engines and Linux dependencies
+        env:
+          PLAYWRIGHT_WITH_DEPS: "1"
+        run: ./scripts/install-browsers.sh chromium firefox webkit
+      - name: Run the deterministic browser shard
+        env:
+          VAIPEX_SKIP_BROWSER_INSTALL: "1"
+        run: |
+          mkdir -p reports/shards
+          set -o pipefail
+          ./scripts/run-shard.sh "${{ matrix.shard }}" "${SHARD_TOTAL}" 2>&1 \
+            | tee "reports/shards/shard-${{ matrix.shard }}.log"
+      - name: Preserve shard evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: browser-shard-${{ matrix.shard }}
+          path: |
+            reports/shards/shard-${{ matrix.shard }}.*
+            artifacts/shards/shard-${{ matrix.shard }}/
+          if-no-files-found: warn
+          retention-days: 7
+
+  compatibility-profiles:
+    name: Compatibility profiles
+    needs: quality-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the immutable revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Configure Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Install the locked toolchain
+        run: ./scripts/setup.sh
+      - name: Install Chromium and Linux dependencies
+        env:
+          PLAYWRIGHT_WITH_DEPS: "1"
+        run: ./scripts/install-browsers.sh chromium
+      - name: Run desktop, mobile, locale, and capability profiles
+        env:
+          VAIPEX_SKIP_BROWSER_INSTALL: "1"
+        run: ./scripts/test-profiles.sh
+      - name: Preserve profile evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: compatibility-profiles
+          path: |
+            reports/profiles/
+            artifacts/profiles/
+          if-no-files-found: warn
+          retention-days: 7
+
+  merged-quality-decision:
+    name: Merged quality decision
+    if: always() && needs.quality-contract.result == 'success'
+    needs:
+      - quality-contract
+      - browser-matrix
+      - compatibility-profiles
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the immutable revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Configure Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Install the locked toolchain
+        run: ./scripts/setup.sh
+      - name: Download browser-shard evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: browser-shard-*
+          path: collected
+          merge-multiple: true
+      - name: Merge the machine and human evidence
+        run: |
+          .venv/bin/python scripts/merge-evidence.py \
+            --input-dir collected/reports/shards \
+            --output-dir collected/reports/merged
+      - name: Publish the quality summary
+        if: always() && hashFiles('collected/reports/merged/summary.json') != ''
+        run: |
+          .venv/bin/python - <<'PY' >> "${GITHUB_STEP_SUMMARY}"
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("collected/reports/merged/summary.json").read_text()
+          )
+          print("## Cross-browser quality decision")
+          print()
+          print(f"**{summary['status'].upper()}**")
+          print()
+          print("| Shards | Tests | Failures | Errors | Duration |")
+          print("| ---: | ---: | ---: | ---: | ---: |")
+          print(
+              f"| {summary['shards']} | {summary['tests']} | "
+              f"{summary['failures']} | {summary['errors']} | "
+              f"{summary['duration_seconds']}s |"
+          )
+          PY
+      - name: Preserve the merged quality decision
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: merged-quality-decision
+          path: collected/reports/
+          if-no-files-found: warn
+          retention-days: 14
