@@ -7,6 +7,7 @@ from tests.pages.explorer_page import ExplorerPage
 pytestmark = [pytest.mark.e2e, pytest.mark.compatibility]
 
 
+@pytest.mark.smoke
 def test_customer_can_filter_and_build_a_plan(
     configured_page: Page,
     settings: AutomationSettings,
@@ -19,6 +20,7 @@ def test_customer_can_filter_and_build_a_plan(
     explorer.expect_plan(["Kyoto Reliability Retreat"], "$1,120")
 
 
+@pytest.mark.regression
 def test_customer_can_confirm_a_multi_city_plan(
     configured_page: Page,
     settings: AutomationSettings,

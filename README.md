@@ -21,6 +21,7 @@ communities.
 [Explore the Reference Application](#explore-the-reference-application) ·
 [Run the Three-Engine Journeys](#run-the-three-engine-journeys) ·
 [Run the Compatibility Profiles](#run-the-compatibility-profiles) ·
+[Risk-Based Suites and Sharding](#risk-based-suites-and-sharding) ·
 [Target Experience](#target-experience) ·
 [Delivery Roadmap](#delivery-roadmap) ·
 [Repository Structure](#repository-structure)
@@ -199,6 +200,42 @@ profiles run in Chromium as representative capability checks. This risk-based
 shape avoids 15 mostly redundant engine/profile combinations while retaining a
 clear signal for each supported dimension.
 
+## Risk-Based Suites and Sharding
+
+Use a fast representative signal while developing or reviewing a change:
+
+```bash
+./scripts/test-risk-suite.sh smoke
+```
+
+Run both the smoke and broader booking journeys across every engine:
+
+```bash
+./scripts/test-risk-suite.sh regression
+```
+
+Split the six core browser executions into two deterministic parallel shards
+and merge their evidence:
+
+```bash
+./scripts/test-sharded.sh
+```
+
+The sharding algorithm sorts the fully parameterized Pytest node IDs and
+assigns them round-robin. Every execution belongs to exactly one shard, the
+distribution stays stable when collection order changes, and an invalid shard
+contract is rejected before browser execution.
+
+Each shard publishes its own HTML, JUnit, log, and failure evidence. After all
+shards finish, the control plane produces:
+
+- `reports/merged/index.html` — consolidated human-readable decision.
+- `reports/merged/junit.xml` — combined machine-readable test suites.
+- `reports/merged/summary.json` — compact status and count contract.
+
+Set `VAIPEX_SHARD_TOTAL` to change the local shard count. CI can invoke
+`./scripts/run-shard.sh INDEX TOTAL` directly so each runner owns one shard.
+
 ## Compatibility Dimensions
 
 | Dimension | Planned profiles |
@@ -220,7 +257,7 @@ risk or provide a deliberate release signal.
 - [x] Deliver a deterministic responsive reference application.
 - [x] Implement reusable journeys across Chromium, Firefox, and WebKit.
 - [x] Add desktop, mobile, locale, and capability profiles.
-- [ ] Introduce risk-based suites, sharding, and merged evidence.
+- [x] Introduce risk-based suites, sharding, and merged evidence.
 - [ ] Enforce the cross-browser matrix through GitHub Actions.
 - [ ] Publish the two-minute demo and operating guidance.
 
