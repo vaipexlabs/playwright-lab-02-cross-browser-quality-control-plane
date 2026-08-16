@@ -14,7 +14,9 @@ PROFILES=(
 )
 
 "${REPOSITORY_ROOT}/scripts/ensure-toolchain.sh"
-"${REPOSITORY_ROOT}/scripts/install-browsers.sh" chromium
+if [[ "${VAIPEX_SKIP_BROWSER_INSTALL:-0}" != "1" ]]; then
+  "${REPOSITORY_ROOT}/scripts/install-browsers.sh" chromium
+fi
 mkdir -p "${REPORT_DIRECTORY}" "${ARTIFACT_DIRECTORY}"
 
 cd "${REPOSITORY_ROOT}"

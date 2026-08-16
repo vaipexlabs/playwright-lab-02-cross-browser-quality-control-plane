@@ -236,6 +236,23 @@ shards finish, the control plane produces:
 Set `VAIPEX_SHARD_TOTAL` to change the local shard count. CI can invoke
 `./scripts/run-shard.sh INDEX TOTAL` directly so each runner owns one shard.
 
+## Continuous Quality Gate
+
+The GitHub Actions workflow uses the same repository scripts that developers
+run locally. Pull requests, changes to `main`, weekday schedules, and manual
+runs trigger four governed stages:
+
+1. Validate the pinned Python toolchain, formatting rules, and unit contract.
+2. Run two deterministic browser shards concurrently with fail-fast disabled.
+3. Exercise desktop, mobile, locale, and reduced-motion profiles in Chromium.
+4. Merge the shard reports into one HTML, JUnit, and JSON quality decision.
+
+Every external action is pinned to an immutable commit. The workflow has
+read-only repository access, prevents duplicate pull-request runs, retains
+failure evidence for seven days, and retains the merged decision for fourteen
+days. The required branch-protection check should be **Merged quality
+decision**, because it represents the consolidated release signal.
+
 ## Compatibility Dimensions
 
 | Dimension | Planned profiles |
@@ -258,7 +275,7 @@ risk or provide a deliberate release signal.
 - [x] Implement reusable journeys across Chromium, Firefox, and WebKit.
 - [x] Add desktop, mobile, locale, and capability profiles.
 - [x] Introduce risk-based suites, sharding, and merged evidence.
-- [ ] Enforce the cross-browser matrix through GitHub Actions.
+- [x] Enforce the cross-browser matrix through GitHub Actions.
 - [ ] Publish the two-minute demo and operating guidance.
 
 Each milestone is independently reviewable and preserves a usable project
