@@ -38,7 +38,7 @@ jobs:
         run: ./scripts/validate-toolchain.sh
 
   browser-matrix:
-    name: Browser shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }}
+    name: Browser shard ${{ matrix.shard }}/2
     needs: quality-contract
     runs-on: ubuntu-latest
     timeout-minutes: 20
